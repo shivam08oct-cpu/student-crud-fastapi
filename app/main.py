@@ -1,5 +1,8 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from pathlib import Path
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
@@ -7,12 +10,14 @@ from app.config import settings
 from app.database import init_db, engine
 from app.routers import students, ai
 
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+INDEX_HTML = STATIC_DIR / "index.html"
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: ensure SQLite database tables exist
     init_db()
     yield
-    # Shutdown logic if any
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -37,7 +42,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include Routers directly (e.g. /students, /ai/ask)
+# Mount static directory for CSS/JS assets if needed
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# Include REST Routers directly (e.g. /students, /ai/ask)
 app.include_router(students.router)
 app.include_router(ai.router)
 
@@ -45,8 +54,17 @@ app.include_router(ai.router)
 app.include_router(students.router, prefix=settings.API_V1_STR)
 app.include_router(ai.router, prefix=settings.API_V1_STR)
 
-@app.get("/", tags=["General"])
-def root():
+@app.get("/", tags=["Web Interface"])
+def home(request: Request):
+    """
+    Serves the live interactive Web Dashboard if requested via browser,
+    or returns API metadata if requested with JSON accept header.
+    """
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept and INDEX_HTML.exists():
+        return FileResponse(INDEX_HTML)
+    
+    # Return JSON API details for programmatic clients
     return {
         "project": settings.APP_NAME,
         "version": settings.APP_VERSION,
@@ -54,6 +72,7 @@ def root():
         "status": "online",
         "documentation": "/docs",
         "redoc": "/redoc",
+        "web_dashboard": "/",
         "endpoints": {
             "students_crud": "/students",
             "students_crud_v1": f"{settings.API_V1_STR}/students",
@@ -62,6 +81,13 @@ def root():
             "health_check": "/health",
         }
     }
+
+@app.get("/dashboard", tags=["Web Interface"])
+def dashboard():
+    """Direct URL for the web dashboard."""
+    if INDEX_HTML.exists():
+        return FileResponse(INDEX_HTML)
+    return HTMLResponse("<h1>Web Dashboard coming soon</h1>")
 
 @app.get("/health", tags=["General"])
 def health_check():

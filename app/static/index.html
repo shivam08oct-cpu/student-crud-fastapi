@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Students Database Management System | EWB Edu Tech</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              900: '#14532d',
+            },
+            accent: {
+              50: '#eef2ff',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .fade-in { animation: fadeIn 0.2s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white font-black text-xl shadow-md shadow-brand-500/20">
+          E
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-slate-900 text-lg tracking-tight">EWB COURSES</span>
+            <span class="bg-brand-100 text-brand-700 text-xs font-semibold px-2 py-0.5 rounded-full">CRUD App</span>
+          </div>
+          <p class="text-xs text-slate-500">Student Database & AI Extension • FastAPI + SQLite</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <a href="/docs" target="_blank" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-code text-brand-600"></i>
+          <span>Swagger Docs</span>
+        </a>
+        <a href="https://github.com/shivam08oct-cpu/student-crud-fastapi" target="_blank" class="text-xs sm:text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-brands fa-github"></i>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Students</p>
+          <h3 id="statTotalStudents" class="text-2xl font-bold text-slate-900">--</h3>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-book-bookmark"></i>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Active Courses</p>
+          <h3 id="statTotalCourses" class="text-2xl font-bold text-slate-900">--</h3>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-database"></i>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Database Engine</p>
+          <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+            SQLite <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          </h3>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4 cursor-pointer hover:border-brand-500 transition group" onclick="openAiModal()">
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-brand-50 group-hover:text-brand-600 flex items-center justify-center text-xl transition">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">AI Assistant</p>
+          <h3 class="text-base font-bold text-slate-900 group-hover:text-brand-600 transition flex items-center gap-1">
+            Ask Questions <i class="fa-solid fa-arrow-right text-xs"></i>
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid: Table & Quick Actions -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+      
+      <!-- Table Controls / Filter Toolbar -->
+      <div class="p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
+        <div class="flex-1 flex flex-wrap items-center gap-3">
+          <!-- Search Input -->
+          <div class="relative min-w-[240px] flex-1 max-w-md">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search by name, student ID, or email..." 
+              class="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
+              oninput="debouncedSearch()"
+            >
+          </div>
+
+          <!-- Course Filter Dropdown -->
+          <select 
+            id="courseFilter" 
+            class="px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 transition text-slate-700"
+            onchange="fetchStudents()"
+          >
+            <option value="">All Courses</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Artificial Intelligence">Artificial Intelligence</option>
+            <option value="Cyber Security">Cyber Security</option>
+            <option value="Information Technology">Information Technology</option>
+          </select>
+
+          <!-- Born After Filter -->
+          <div class="flex items-center gap-1.5 text-xs text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-xl">
+            <span>Born after:</span>
+            <input 
+              type="date" 
+              id="bornAfterFilter" 
+              class="text-xs bg-transparent border-0 focus:outline-none cursor-pointer"
+              onchange="fetchStudents()"
+            >
+            <button onclick="clearDateFilter()" title="Clear date filter" class="text-slate-400 hover:text-slate-600 ml-1">
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button 
+            onclick="openAiModal()"
+            class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-sm"
+          >
+            <i class="fa-solid fa-robot"></i>
+            <span>Ask AI</span>
+          </button>
+
+          <button 
+            onclick="openAddStudentModal()"
+            class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-sm"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Student</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Students Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+              <th class="py-3.5 px-4">Student ID</th>
+              <th class="py-3.5 px-4">Name</th>
+              <th class="py-3.5 px-4">Date of Birth</th>
+              <th class="py-3.5 px-4">Course</th>
+              <th class="py-3.5 px-4">Contact</th>
+              <th class="py-3.5 px-4">Enrollment Date</th>
+              <th class="py-3.5 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400">
+                <i class="fa-solid fa-spinner fa-spin text-2xl text-brand-600 mb-2"></i>
+                <p>Loading student records...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden py-16 text-center">
+        <div class="w-16 h-16 mx-auto mb-3 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl">
+          <i class="fa-solid fa-user-slash"></i>
+        </div>
+        <h4 class="text-base font-semibold text-slate-700">No students found</h4>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Try adjusting your search terms or course filters, or add a new student record.</p>
+        <button onclick="resetFilters()" class="mt-4 px-3 py-1.5 text-xs text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-lg font-medium transition">
+          Reset all filters
+        </button>
+      </div>
+
+      <!-- Table Footer / Count -->
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs text-slate-500">
+        <span id="showingRecordsText">Showing records...</span>
+        <span class="font-medium text-slate-600">SQLite Persistent Storage</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Add/Edit Student Modal -->
+  <div id="studentModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-lg w-full overflow-hidden fade-in">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h3 id="modalTitle" class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-brand-600"></i>
+          <span>Add New Student</span>
+        </h3>
+        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="studentForm" onsubmit="handleStudentFormSubmit(event)" class="p-6 space-y-4">
+        <input type="hidden" id="editOriginalStudentId">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Student ID <span class="text-slate-400 font-normal">(Optional)</span></label>
+            <input 
+              type="text" 
+              id="formStudentId" 
+              placeholder="e.g. STU-1010" 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+            <input 
+              type="text" 
+              id="formName" 
+              required 
+              placeholder="e.g. Aditi Sharma" 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Date of Birth <span class="text-red-500">*</span></label>
+            <input 
+              type="date" 
+              id="formDob" 
+              required 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Course / Program</label>
+            <input 
+              type="text" 
+              id="formCourse" 
+              placeholder="e.g. Computer Science" 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+            <input 
+              type="email" 
+              id="formEmail" 
+              placeholder="aditi@example.com" 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
+            <input 
+              type="text" 
+              id="formPhone" 
+              placeholder="+91-9876543210" 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Enrollment Date</label>
+            <input 
+              type="date" 
+              id="formEnrollmentDate" 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Address</label>
+            <input 
+              type="text" 
+              id="formAddress" 
+              placeholder="City, State" 
+              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            >
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-400 italic">* At least one contact method (email or phone) is required.</p>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button 
+            type="button" 
+            onclick="closeStudentModal()" 
+            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 rounded-xl font-medium"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            id="submitBtn"
+            class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl shadow-sm transition"
+          >
+            Save Student
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- AI Query Modal -->
+  <div id="aiModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-xl w-full overflow-hidden fade-in flex flex-col max-h-[85vh]">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm shadow-sm">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Ollama AI Student Assistant</h3>
+            <p class="text-xs text-indigo-700">Safe, grounded queries over database records</p>
+          </div>
+        </div>
+        <button onclick="closeAiModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 flex-1">
+        <!-- Quick prompt chips -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-2">Quick Sample Prompts:</label>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="askPresetQuestion('How many students are there?')" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 transition">
+              "How many students are there?"
+            </button>
+            <button onclick="askPresetQuestion('List students born after 2005')" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 transition">
+              "List students born after 2005"
+            </button>
+            <button onclick="askPresetQuestion('What courses are available and how many students are enrolled?')" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 transition">
+              "Which courses are available?"
+            </button>
+          </div>
+        </div>
+
+        <!-- Question Form -->
+        <form onsubmit="handleAiSubmit(event)" class="flex gap-2">
+          <input 
+            type="text" 
+            id="aiQuestionInput" 
+            placeholder="Ask anything about the student database..." 
+            class="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            required
+          >
+          <button 
+            type="submit" 
+            id="aiSubmitBtn"
+            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition flex items-center gap-2 shadow-sm"
+          >
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+            <span>Ask</span>
+          </button>
+        </form>
+
+        <!-- Response Box -->
+        <div id="aiResponseBox" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 text-xs text-slate-500">
+            <span id="aiModelBadge" class="font-semibold text-indigo-700">Ollama llama3.2:1b</span>
+            <span id="aiSourceBadge" class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full text-[10px] font-bold">Grounded</span>
+          </div>
+          <div id="aiAnswerContent" class="text-slate-800 whitespace-pre-line leading-relaxed"></div>
+        </div>
+
+        <!-- Loading spinner -->
+        <div id="aiLoading" class="hidden text-center py-6 text-indigo-600">
+          <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+          <p class="text-xs text-slate-500">Analyzing database records safely...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div id="toastContent" class="bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2">
+      <i id="toastIcon" class="fa-solid fa-check text-brand-400"></i>
+      <span id="toastMsg">Notification message</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
+      <p>Internship Project Assignment • Python Backend Development • <strong>EWB Edu Tech Pvt. Ltd.</strong></p>
+      <p class="mt-1">Powered by FastAPI, SQLite & Ollama</p>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    let studentsData = [];
+    let searchTimeout = null;
+
+    // Load initial data
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchStudents();
+      // Set default enrollment date to today
+      document.getElementById("formEnrollmentDate").value = new Date().toISOString().split("T")[0];
+    });
+
+    // Toast helper
+    function showToast(message, isError = false) {
+      const toast = document.getElementById("toast");
+      const msg = document.getElementById("toastMsg");
+      const icon = document.getElementById("toastIcon");
+
+      msg.innerText = message;
+      if (isError) {
+        icon.className = "fa-solid fa-triangle-exclamation text-red-400";
+      } else {
+        icon.className = "fa-solid fa-circle-check text-brand-400";
+      }
+
+      toast.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 3500);
+    }
+
+    // Debounced search
+    function debouncedSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(fetchStudents, 250);
+    }
+
+    function clearDateFilter() {
+      document.getElementById("bornAfterFilter").value = "";
+      fetchStudents();
+    }
+
+    function resetFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("courseFilter").value = "";
+      document.getElementById("bornAfterFilter").value = "";
+      fetchStudents();
+    }
+
+    // Fetch students list with current filters
+    async function fetchStudents() {
+      const search = document.getElementById("searchInput").value.trim();
+      const course = document.getElementById("courseFilter").value;
+      const bornAfter = document.getElementById("bornAfterFilter").value;
+
+      const params = new URLSearchParams({ limit: 100 });
+      if (search) params.append("search", search);
+      if (course) params.append("course", course);
+      if (bornAfter) params.append("born_after", bornAfter);
+
+      try {
+        const res = await fetch(`/students?${params.toString()}`);
+        if (!res.ok) throw new Error("Failed to load records");
+        const data = await res.json();
+        studentsData = data.students || [];
+
+        renderTable(studentsData, data.total);
+        updateStats(studentsData, data.total);
+      } catch (err) {
+        console.error(err);
+        showToast("Error loading student records", true);
+      }
+    }
+
+    // Render Table Rows
+    function renderTable(students, total) {
+      const tbody = document.getElementById("studentsTableBody");
+      const empty = document.getElementById("emptyState");
+      const counter = document.getElementById("showingRecordsText");
+
+      counter.innerText = `Showing ${students.length} of ${total} student(s)`;
+
+      if (students.length === 0) {
+        tbody.innerHTML = "";
+        empty.classList.remove("hidden");
+        return;
+      }
+
+      empty.classList.add("hidden");
+      tbody.innerHTML = students.map(s => {
+        // Calculate age
+        const birthDate = new Date(s.date_of_birth);
+        const age = new Date().getFullYear() - birthDate.getFullYear();
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition duration-150">
+            <td class="py-3.5 px-4 font-mono font-semibold text-slate-800">
+              <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200 text-xs">
+                ${s.student_id}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 font-medium text-slate-900">${s.name}</td>
+            <td class="py-3.5 px-4 text-slate-600">
+              ${s.date_of_birth} 
+              <span class="text-xs text-slate-400 font-normal">(${age} yrs)</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                ${s.course || 'Unassigned'}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-xs text-slate-600">
+              ${s.email ? `<div class="flex items-center gap-1.5"><i class="fa-regular fa-envelope text-slate-400"></i> ${s.email}</div>` : ''}
+              ${s.phone ? `<div class="flex items-center gap-1.5 mt-0.5"><i class="fa-solid fa-phone text-slate-400"></i> ${s.phone}</div>` : ''}
+              ${!s.email && !s.phone ? '<span class="text-slate-400 italic">None</span>' : ''}
+            </td>
+            <td class="py-3.5 px-4 text-slate-500 text-xs">${s.enrollment_date || 'N/A'}</td>
+            <td class="py-3.5 px-4 text-right space-x-1">
+              <button 
+                onclick="openEditStudentModal('${s.student_id}')" 
+                class="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition" 
+                title="Edit student"
+              >
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button 
+                onclick="handleDeleteStudent('${s.student_id}', '${s.name.replace(/'/g, "\\'")}')" 
+                class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" 
+                title="Delete student"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // Update Summary Stats
+    function updateStats(students, total) {
+      document.getElementById("statTotalStudents").innerText = total;
+      const coursesSet = new Set(students.map(s => s.course).filter(Boolean));
+      document.getElementById("statTotalCourses").innerText = coursesSet.size;
+    }
+
+    // Modal Controls
+    function openAddStudentModal() {
+      document.getElementById("modalTitle").innerHTML = '<i class="fa-solid fa-user-plus text-brand-600"></i><span>Add New Student</span>';
+      document.getElementById("studentForm").reset();
+      document.getElementById("editOriginalStudentId").value = "";
+      document.getElementById("formStudentId").disabled = false;
+      document.getElementById("formEnrollmentDate").value = new Date().toISOString().split("T")[0];
+      document.getElementById("studentModal").classList.remove("hidden");
+    }
+
+    function openEditStudentModal(studentId) {
+      const student = studentsData.find(s => s.student_id === studentId);
+      if (!student) return;
+
+      document.getElementById("modalTitle").innerHTML = '<i class="fa-solid fa-user-pen text-brand-600"></i><span>Edit Student Profile</span>';
+      document.getElementById("editOriginalStudentId").value = student.student_id;
+      document.getElementById("formStudentId").value = student.student_id;
+      document.getElementById("formStudentId").disabled = true; // Student ID immutable on edit
+      document.getElementById("formName").value = student.name;
+      document.getElementById("formDob").value = student.date_of_birth;
+      document.getElementById("formCourse").value = student.course || "";
+      document.getElementById("formEmail").value = student.email || "";
+      document.getElementById("formPhone").value = student.phone || "";
+      document.getElementById("formAddress").value = student.address || "";
+      document.getElementById("formEnrollmentDate").value = student.enrollment_date || "";
+
+      document.getElementById("studentModal").classList.remove("hidden");
+    }
+
+    function closeStudentModal() {
+      document.getElementById("studentModal").classList.add("hidden");
+    }
+
+    // Add or Update Submission
+    async function handleStudentFormSubmit(event) {
+      event.preventDefault();
+      const editId = document.getElementById("editOriginalStudentId").value;
+      const isEdit = Boolean(editId);
+
+      const payload = {
+        name: document.getElementById("formName").value.trim(),
+        date_of_birth: document.getElementById("formDob").value,
+        course: document.getElementById("formCourse").value.trim() || null,
+        email: document.getElementById("formEmail").value.trim() || null,
+        phone: document.getElementById("formPhone").value.trim() || null,
+        address: document.getElementById("formAddress").value.trim() || null,
+        enrollment_date: document.getElementById("formEnrollmentDate").value || null,
+      };
+
+      const customId = document.getElementById("formStudentId").value.trim();
+      if (!isEdit && customId) {
+        payload.student_id = customId;
+      }
+
+      if (!payload.email && !payload.phone) {
+        showToast("Please provide at least an email or a phone number.", true);
+        return;
+      }
+
+      const url = isEdit ? `/students/${editId}` : "/students";
+      const method = isEdit ? "PUT" : "POST";
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || "Operation failed");
+        }
+
+        closeStudentModal();
+        showToast(isEdit ? "Student updated successfully!" : "Student added successfully!");
+        fetchStudents();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    // Delete Student
+    async function handleDeleteStudent(studentId, name) {
+      if (!confirm(`Are you sure you want to delete student "${name}" (ID: ${studentId})?`)) return;
+
+      try {
+        const res = await fetch(`/students/${studentId}`, { method: "DELETE" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Delete failed");
+
+        showToast(`Student ${studentId} deleted.`);
+        fetchStudents();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    // AI Modal Controls
+    function openAiModal() {
+      document.getElementById("aiModal").classList.remove("hidden");
+    }
+
+    function closeAiModal() {
+      document.getElementById("aiModal").classList.add("hidden");
+    }
+
+    function askPresetQuestion(q) {
+      document.getElementById("aiQuestionInput").value = q;
+      handleAiSubmit(new Event("submit"));
+    }
+
+    async function handleAiSubmit(e) {
+      if (e) e.preventDefault();
+      const question = document.getElementById("aiQuestionInput").value.trim();
+      if (!question) return;
+
+      const loading = document.getElementById("aiLoading");
+      const responseBox = document.getElementById("aiResponseBox");
+      const answerContent = document.getElementById("aiAnswerContent");
+      const modelBadge = document.getElementById("aiModelBadge");
+      const sourceBadge = document.getElementById("aiSourceBadge");
+
+      loading.classList.remove("hidden");
+      responseBox.classList.add("hidden");
+
+      try {
+        const res = await fetch("/ai/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: question })
+        });
+        const data = await res.json();
+
+        modelBadge.innerText = data.model_used || "Ollama";
+        sourceBadge.innerText = data.source === "ollama" ? "Generated by Ollama" : "Grounded DB Summary";
+        sourceBadge.className = data.source === "ollama" 
+          ? "bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-bold"
+          : "bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full text-[10px] font-bold";
+
+        answerContent.innerText = data.answer;
+        responseBox.classList.remove("hidden");
+      } catch (err) {
+        showToast("Error consulting AI assistant", true);
+      } finally {
+        loading.classList.add("hidden");
+      }
+    }
+  </script>
+</body>
+</html>
