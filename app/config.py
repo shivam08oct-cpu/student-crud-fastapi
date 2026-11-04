@@ -11,8 +11,13 @@ class Settings:
     APP_VERSION: str = os.getenv("APP_VERSION", "1.0.0")
     API_V1_STR: str = os.getenv("API_V1_STR", "/api/v1")
     
-    # SQLite Database Configuration
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./students.db")
+    # SQLite Database Configuration (supports Embarko's DATA_DIR for persistent storage)
+    data_dir = os.getenv("DATA_DIR")
+    if data_dir:
+        default_db = f"sqlite:///{Path(data_dir) / 'students.db'}"
+    else:
+        default_db = "sqlite:///./students.db"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", default_db)
     
     # Ollama AI Configuration
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")

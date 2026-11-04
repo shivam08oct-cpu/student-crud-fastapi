@@ -17,6 +17,11 @@ INDEX_HTML = STATIC_DIR / "index.html"
 async def lifespan(app: FastAPI):
     # Startup: ensure SQLite database tables exist
     init_db()
+    try:
+        from seed_data import seed_database
+        seed_database()
+    except Exception:
+        pass
     yield
 
 app = FastAPI(
